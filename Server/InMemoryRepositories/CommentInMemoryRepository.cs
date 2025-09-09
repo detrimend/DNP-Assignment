@@ -47,8 +47,14 @@ public class CommentInMemoryRepository : ICommentRepository
     
     public Task<Comment> GetSingleAsync(int id)
     {
-        throw new NotImplementedException();
-        //return Task.FromResult(comment);
+        Comment? comment = comments.SingleOrDefault(c => c.Id == id);
+        if (comment is null)
+        {
+            throw new InvalidOperationException(
+                $"Comment with ID '{id}' not found");
+        }
+        
+        return Task.FromResult(comment);
     }
 
     public IQueryable<Comment> GetMany()

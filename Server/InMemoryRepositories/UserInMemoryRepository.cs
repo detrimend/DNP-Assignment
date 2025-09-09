@@ -46,8 +46,14 @@ public class UserInMemoryRepository : IUserRepository
 
     public Task<User> GetSingleAsync(int id)
     {
-        throw new NotImplementedException();
-        //return Task.FromResult(user);
+        User? user = users.SingleOrDefault(u => u.Id == id);
+        if (user is null)
+        {
+            throw new InvalidOperationException(
+                $"User with ID '{id}' not found");
+        }
+        
+        return Task.FromResult(user);
     }
 
     public IQueryable<User> GetMany()
