@@ -15,6 +15,19 @@ public class SinglePostView
 
     public async Task ShowPost()
     {
-        throw new NotImplementedException();
+        Console.WriteLine($"'{post.Result.Title}'[{post.Result.Id}] by User [{post.Result.UserId}]" +
+                          $"\n{post.Result.Body}\n");
+        Console.WriteLine("(1) Show comments \n" + // not implemented
+                          "(2) Edit post \n" +
+                          "(3) Delete post \n" +
+                          "(0) Go back");
+        int? selection = int.Parse(Console.ReadLine());
+        switch (selection)
+        {
+            case 1: throw new NotImplementedException();
+            case 2: throw new NotImplementedException();
+            case 3: throw new NotImplementedException();
+            default: await listPostsView.ListPosts(); break;
+        }
     }
 }

@@ -10,6 +10,9 @@ public class CliApp
     private readonly ICommentRepository commentRepository;
     private readonly IPostRepository postRepository;
     private bool running;
+    
+    private ManagePostsView managePostsView;
+    private ManageUsersView manageUsersView;
 
     public CliApp(IUserRepository userRepository,
         ICommentRepository commentRepository, IPostRepository postRepository)
@@ -19,7 +22,6 @@ public class CliApp
         this.postRepository = postRepository;
     }
 
-    //Skal nok i et while loop så vi kan komme retur til selection
     public async Task StartAsync()
     {
         running = true;
@@ -34,13 +36,17 @@ public class CliApp
             switch (selection)
             {
                 case 1:
-                    ManagePostsView managePostsView =
-                        new ManagePostsView(postRepository, this);
+                    if(managePostsView is null)
+                    {
+                        managePostsView = new ManagePostsView(postRepository, this);
+                    }
                     await managePostsView.ShowOptions();
                     break;
                 case 2:
-                    ManageUsersView manageUsersView =
-                        new ManageUsersView(userRepository, this);
+                    if (manageUsersView is null)
+                    {
+                        manageUsersView = new ManageUsersView(userRepository, this);
+                    }
                     await manageUsersView.ShowOptions();
                     break;
                 default:
