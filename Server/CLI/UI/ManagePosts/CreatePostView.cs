@@ -27,7 +27,7 @@ public class CreatePostView
         string title = Console.ReadLine();
         Console.WriteLine("Enter the body:");
         string body = Console.ReadLine();
-        
+
         await postRepository.AddAsync(new Entities.Post
         {
             Title = title,

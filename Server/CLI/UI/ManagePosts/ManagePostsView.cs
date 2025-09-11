@@ -5,15 +5,18 @@ namespace CLI.UI.ManagePosts;
 public class ManagePostsView
 {
     private readonly IPostRepository postRepository;
+    private readonly ICommentRepository commentRepository;
     private readonly CliApp cliApp;
     private bool running;
 
     private ListPostsView listPostsView;
     private CreatePostView createPostView;
 
-    public ManagePostsView(IPostRepository postRepository, CliApp cliApp)
+    public ManagePostsView(IPostRepository postRepository,
+        ICommentRepository commentRepository, CliApp cliApp)
     {
         this.postRepository = postRepository;
+        this.commentRepository = commentRepository;
         this.cliApp = cliApp;
     }
 
@@ -32,16 +35,20 @@ public class ManagePostsView
             {
                 case 1:
                     if (listPostsView is null)
-                    { 
-                        listPostsView = new ListPostsView(postRepository, this);
+                    {
+                        listPostsView = new ListPostsView(postRepository,
+                            commentRepository, this);
                     }
+
                     await listPostsView.ListPosts();
                     break;
                 case 2:
                     if (createPostView is null)
                     {
-                        createPostView = new CreatePostView(postRepository, this);
+                        createPostView =
+                            new CreatePostView(postRepository, this);
                     }
+
                     await createPostView.CreatePost();
                     break;
                 default:

@@ -16,7 +16,7 @@ public class ManageUsersView
         this.userRepository = userRepository;
         this.cliApp = cliApp;
     }
-    
+
     public async Task ShowOptions()
     {
         running = true;
@@ -35,16 +35,19 @@ public class ManageUsersView
                     {
                         listUsersView = new ListUsersView(userRepository, this);
                     }
+
                     await listUsersView.ListUsers();
                     break;
                 case 2:
                     if (createUserView is null)
                     {
-                       createUserView = new CreateUserView(userRepository, this); 
+                        createUserView =
+                            new CreateUserView(userRepository, this);
                     }
+
                     await createUserView.CreateUser();
                     break;
-                default: 
+                default:
                     running = false;
                     break;
             }
@@ -52,5 +55,4 @@ public class ManageUsersView
 
         cliApp.StartAsync();
     }
-
 }

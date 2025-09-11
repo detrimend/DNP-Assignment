@@ -29,24 +29,35 @@ public class ListUsersView
                 Console.WriteLine($"* '{user.username}' [{user.Id}]");
             }
 
-            Console.WriteLine("Enter [ID] to select a user \n" +
-                              "Enter 'exit' to return");
-            string selection = Console.ReadLine();
+            Console.WriteLine(
+                "\n Please enter a number corresponding with your selection:");
+            Console.WriteLine("(1) Manage user \n" +
+                              "(0) Go back");
+            int? selection = int.Parse(Console.ReadLine());
 
-            if (selection == "exit")
+            switch (selection)
             {
-                running = false;
-                break;
-            }
+                case 1:
+                    Console.WriteLine("Enter [ID] to select a user");
+                    string userSelection = Console.ReadLine();
+                    Task<User> selectedUser =
+                        userRepository.GetSingleAsync(int.Parse(userSelection));
+                    if (selectedUser is null)
+                    {
+                        Console.WriteLine("User not found");
+                        break;
+                    }
 
-            Task<User> selectedUser =
-                userRepository.GetSingleAsync(int.Parse(selection));
-            if (singleUserView is null)
-            {
-               singleUserView = new SingleUserView(selectedUser, this); 
-            }
+                    if (singleUserView is null)
+                    {
+                        singleUserView = new SingleUserView(selectedUser, this);
+                    }
 
-            await singleUserView.ShowUser();
+                    await singleUserView.ShowUser();
+                    break;
+
+                default: running = false; break;
+            }
         }
 
         manageUsersView.ShowOptions();

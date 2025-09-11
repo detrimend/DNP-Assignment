@@ -28,8 +28,8 @@ public class SingleUserView
         int? selection = int.Parse(Console.ReadLine());
         switch (selection)
         {
-            case 1: throw new NotImplementedException();
-            case 2: throw new NotImplementedException();
+            case 1: throw new NotImplementedException(); break;
+            case 2: throw new NotImplementedException(); break;
             default: await listUsersView.ListUsers(); break;
         }
     }

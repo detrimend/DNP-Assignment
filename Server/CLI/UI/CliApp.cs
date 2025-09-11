@@ -10,7 +10,7 @@ public class CliApp
     private readonly ICommentRepository commentRepository;
     private readonly IPostRepository postRepository;
     private bool running;
-    
+
     private ManagePostsView managePostsView;
     private ManageUsersView manageUsersView;
 
@@ -36,17 +36,21 @@ public class CliApp
             switch (selection)
             {
                 case 1:
-                    if(managePostsView is null)
+                    if (managePostsView is null)
                     {
-                        managePostsView = new ManagePostsView(postRepository, this);
+                        managePostsView = new ManagePostsView(postRepository,
+                            commentRepository, this);
                     }
+
                     await managePostsView.ShowOptions();
                     break;
                 case 2:
                     if (manageUsersView is null)
                     {
-                        manageUsersView = new ManageUsersView(userRepository, this);
+                        manageUsersView =
+                            new ManageUsersView(userRepository, this);
                     }
+
                     await manageUsersView.ShowOptions();
                     break;
                 default:
