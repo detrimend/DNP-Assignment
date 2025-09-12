@@ -33,7 +33,7 @@ public class ListPostsView
 
             Console.WriteLine(
                 "\n Please enter a number corresponding with your selection:");
-            Console.WriteLine("(1) Manage post \n" +
+            Console.WriteLine("(1) Select post \n" +
                               "(0) Go back");
             int? selection = int.Parse(Console.ReadLine());
 

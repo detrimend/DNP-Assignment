@@ -31,7 +31,7 @@ public class ListUsersView
 
             Console.WriteLine(
                 "\n Please enter a number corresponding with your selection:");
-            Console.WriteLine("(1) Manage user \n" +
+            Console.WriteLine("(1) Select user \n" +
                               "(0) Go back");
             int? selection = int.Parse(Console.ReadLine());
 

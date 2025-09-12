@@ -39,7 +39,7 @@ public class ListCommentsView
             Console.WriteLine(
                 "\n Please enter a number corresponding with your selection:");
             Console.WriteLine("(1) Create new comment \n" +
-                              "(2) Manage comment \n" +
+                              "(2) Select comment \n" +
                               "(0) Go back");
             int? selection = int.Parse(Console.ReadLine());
 
