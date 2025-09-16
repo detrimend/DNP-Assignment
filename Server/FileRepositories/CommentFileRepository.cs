@@ -18,33 +18,75 @@ public class CommentFileRepository : ICommentRepository
 
     public async Task<Comment> AddAsync(Comment comment)
     {
-        string commentsAsJson = await File.ReadAllTextAsync(filePath);
-        List<Comment> comments = JsonSerializer.Deserialize<List<Comment>>(commentsAsJson)!;
+        List<Comment> comments = await GetCommentsFromFile();
         int maxId = comments.Count > 0 ? comments.Max(c => c.Id) : 1;
         comment.Id = maxId + 1;
         comments.Add(comment);
-        commentsAsJson = JsonSerializer.Serialize(comments);
-        await File.WriteAllTextAsync(filePath, commentsAsJson);
+        await WriteCommentsToFile(comments);
         return comment;
     }
 
-    public Task UpdateAsync(Comment comment)
+    public async Task UpdateAsync(Comment comment)
     {
-        throw new NotImplementedException();
+        List<Comment> comments = await GetCommentsFromFile();
+        Comment? existingComment =
+            comments.SingleOrDefault(c => c.Id == comment.Id);
+        if (existingComment is null)
+        {
+            throw new InvalidOperationException(
+                $"Comment with ID '{comment.Id}' not found");
+        }
+
+        comments.Remove(existingComment);
+        comments.Add(comment);
+        await WriteCommentsToFile(comments);
     }
 
-    public Task DeleteAsync(int id)
+    public async Task DeleteAsync(int id)
     {
-        throw new NotImplementedException();
+        List<Comment> comments = await GetCommentsFromFile();
+        Comment? commentToRemove = comments.SingleOrDefault(c => c.Id == id);
+        if (commentToRemove is null)
+        {
+            throw new InvalidOperationException(
+                $"Comment with ID '{id}' not found");
+        }
+
+        comments.Remove(commentToRemove);
+        await WriteCommentsToFile(comments);
     }
 
-    public Task<Comment> GetSingleAsync(int id)
+    public async Task<Comment> GetSingleAsync(int id)
     {
-        throw new NotImplementedException();
+        List<Comment> comments = await GetCommentsFromFile();
+        Comment? comment = comments.SingleOrDefault(c => c.Id == id);
+        if (comment is null)
+        {
+            throw new InvalidOperationException(
+                $"Comment with ID '{id}' not found");
+        }
+
+        await WriteCommentsToFile(comments);
+        return comment;
     }
 
     public IQueryable<Comment> GetMany()
     {
-        throw new NotImplementedException();
+        string commentsAsJson = File.ReadAllTextAsync(filePath).Result;
+        List<Comment> comments =
+            JsonSerializer.Deserialize<List<Comment>>(commentsAsJson)!;
+        return comments.AsQueryable();
+    }
+
+    private async Task<List<Comment>> GetCommentsFromFile()
+    {
+        string commentsAsJson = await File.ReadAllTextAsync(filePath);
+        return JsonSerializer.Deserialize<List<Comment>>(commentsAsJson)!;
+    }
+
+    private async Task WriteCommentsToFile(List<Comment> comments)
+    {
+        string commentsAsJson = JsonSerializer.Serialize(comments);
+        await File.WriteAllTextAsync(filePath, commentsAsJson);
     }
 }
