@@ -12,7 +12,6 @@ public class ListCommentsView
     private bool running;
 
     private CreateCommentView createCommentView;
-    private SingleCommentView singleCommentView;
 
     public ListCommentsView(ICommentRepository commentRepository,
         Task<Post> post, SinglePostView singlePostView)
@@ -67,11 +66,10 @@ public class ListCommentsView
                         break;
                     }
 
-                    if (singleCommentView is null)
-                    {
-                        singleCommentView =
-                            new SingleCommentView(selectedComment, this);
-                    }
+
+                    SingleCommentView singleCommentView =
+                        new SingleCommentView(selectedComment, this);
+
 
                     await singleCommentView.ShowComment();
                     break;

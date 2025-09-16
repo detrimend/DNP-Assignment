@@ -9,8 +9,6 @@ public class ListUsersView
     private readonly ManageUsersView manageUsersView;
     private bool running;
 
-    private SingleUserView singleUserView;
-
     public ListUsersView(IUserRepository userRepository,
         ManageUsersView manageUsersView)
     {
@@ -48,11 +46,9 @@ public class ListUsersView
                         break;
                     }
 
-                    if (singleUserView is null)
-                    {
-                        singleUserView = new SingleUserView(selectedUser, this);
-                    }
-
+                    SingleUserView singleUserView =
+                        new SingleUserView(selectedUser, this);
+                    
                     await singleUserView.ShowUser();
                     break;
 

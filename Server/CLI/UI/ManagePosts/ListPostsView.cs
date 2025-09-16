@@ -10,8 +10,6 @@ public class ListPostsView
     private readonly ManagePostsView managePostsView;
     private bool running;
 
-    private SinglePostView singlePostView;
-
     public ListPostsView(IPostRepository postRepository,
         ICommentRepository commentRepository, ManagePostsView managePostsView)
     {
@@ -50,11 +48,10 @@ public class ListPostsView
                         break;
                     }
 
-                    if (singlePostView is null)
-                    {
-                        singlePostView = new SinglePostView(commentRepository,
-                            selectedPost, this);
-                    }
+
+                    SinglePostView singlePostView = new SinglePostView(
+                        commentRepository,
+                        selectedPost, this);
 
                     await singlePostView.ShowPost();
                     break;
