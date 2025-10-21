@@ -28,8 +28,8 @@ public class CreateUserView
         string password = Console.ReadLine();
         await userRepository.AddAsync(new User
         {
-            username = username,
-            password = password
+            UserName = username,
+            Password = password
         });
         Console.WriteLine(
             $"User created successfully with ID: {userRepository.GetMany().Last().Id}");

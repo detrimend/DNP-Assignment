@@ -88,4 +88,15 @@ public class UserFileRepository : IUserRepository
         string usersAsJson = JsonSerializer.Serialize(users);
         await File.WriteAllTextAsync(filePath, usersAsJson);
     }
+    
+    public async Task VerifyUserNameIsAvailableAsync(string userName)
+    {
+        List<User> users = await GetUsersFromFile();
+        bool userNameExists = users.Any(u => u.UserName == userName);
+        if (userNameExists)
+        {
+            throw new InvalidOperationException(
+                $"UserName '{userName}' is already taken.");
+        }
+    }
 }

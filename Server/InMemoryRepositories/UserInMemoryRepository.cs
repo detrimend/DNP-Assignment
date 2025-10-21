@@ -60,4 +60,17 @@ public class UserInMemoryRepository : IUserRepository
     {
         return users.AsQueryable();
     }
+    
+    public Task VerifyUserNameIsAvailableAsync(string userName)
+    {
+        bool exists = users.Any(u => u.UserName.Equals(
+            userName, StringComparison.OrdinalIgnoreCase));
+        if (exists)
+        {
+            throw new InvalidOperationException(
+                $"UserName '{userName}' is already taken");
+        }
+
+        return Task.CompletedTask;
+    }
 }

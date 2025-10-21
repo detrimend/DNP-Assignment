@@ -17,9 +17,9 @@ public class SingleUserView
 
     public async Task ShowUser()
     {
-        Console.WriteLine($"Username: {user.Result.username} \n" +
+        Console.WriteLine($"Username: {user.Result.UserName} \n" +
                           $"ID: {user.Result.Id} \n " +
-                          $"Password: {user.Result.password} \n");
+                          $"Password: {user.Result.Password} \n");
         Console.WriteLine(
             "Please enter a number corresponding with your selection:");
         Console.WriteLine("(1) Edit user \n" +

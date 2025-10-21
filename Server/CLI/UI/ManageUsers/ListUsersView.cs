@@ -24,7 +24,7 @@ public class ListUsersView
             Console.WriteLine("Listing users... ('username' [ID])");
             foreach (var user in userRepository.GetMany())
             {
-                Console.WriteLine($"* '{user.username}' [{user.Id}]");
+                Console.WriteLine($"* '{user.UserName}' [{user.Id}]");
             }
 
             Console.WriteLine(
