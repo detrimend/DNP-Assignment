@@ -26,10 +26,23 @@ public class HttpUserService : IUserService
         })!;
     }
 
-    public Task UpdateUserAsync(int id, UpdateUserDto request)
+    public async Task UpdateUserAsync(int id, UpdateUserDto request)
     {
         throw new NotImplementedException();
     }
 
-    // more methods...
+    public async Task DeleteAsync(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<UserDto> GetSingleAsync(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IQueryable<UserDto> GetMany()
+    {
+        throw new NotImplementedException();
+    }
 }
