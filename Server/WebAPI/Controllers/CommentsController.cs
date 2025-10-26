@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ApiContracts;
+using Microsoft.AspNetCore.Mvc;
 using RepositoryContracts;
 using Entities;
 
@@ -16,7 +17,7 @@ public class CommentsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Comment>> AddComment([FromBody] Comment request)
+    public async Task<ActionResult<CommentDto>> AddAsync([FromBody] CreateCommentDto request)
     {
         try
         {
@@ -27,7 +28,14 @@ public class CommentsController : ControllerBase
                 UserId = request.UserId
             };
             Comment created = await commentRepo.AddAsync(comment);
-            return Created($"/Comments/{created.Id}", created);
+            CommentDto dto = new()
+            {
+                Id = created.Id,
+                Body = created.Body,
+                PostId = created.PostId,
+                UserId = created.UserId
+            };
+            return Created($"/Comments/{dto.Id}", dto);
         }
         catch (Exception e)
         {
@@ -37,20 +45,46 @@ public class CommentsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<Comment>> UpdateComment(int id, [FromBody] Comment request)
+    public async Task<ActionResult<CommentDto>> UpdateAsync([FromBody] CommentDto request)
     {
         try
         {
             Comment comment = new()
             {
-                Id = id,
+                Id = request.Id,
                 Body = request.Body,
                 PostId = request.PostId,
                 UserId = request.UserId
             };
             await commentRepo.UpdateAsync(comment);
-            Comment updated = await commentRepo.GetSingleAsync(id);
-            return Ok(updated);
+            Comment updated = await commentRepo.GetSingleAsync(request.Id);
+            CommentDto dto = new()
+            {
+                Id = updated.Id,
+                Body = updated.Body,
+                PostId = updated.PostId,
+                UserId = updated.UserId
+            };
+            return Ok(dto);
+        }
+        catch (InvalidOperationException)
+        {
+            return NotFound();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return StatusCode(500, e.Message);
+        }
+    }
+    
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteAsync(int id)
+    {
+        try
+        {
+            await commentRepo.DeleteAsync(id);
+            return NoContent();
         }
         catch (InvalidOperationException)
         {
@@ -64,14 +98,21 @@ public class CommentsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Comment>> GetComment(int id)
+    public async Task<ActionResult<CommentDto>> GetSingleAsync(int id)
     {
         try
         {
             Comment comment = await commentRepo.GetSingleAsync(id);
             if (comment == null)
                 return NotFound();
-            return Ok(comment);
+            CommentDto dto = new()
+            {
+                Id = comment.Id,
+                Body = comment.Body,
+                PostId = comment.PostId,
+                UserId = comment.UserId
+            };
+            return Ok(dto);
         }
         catch (InvalidOperationException)
         {
@@ -85,7 +126,7 @@ public class CommentsController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<Comment>> GetComments(
+    public ActionResult<IEnumerable<CommentDto>> GetMany(
         [FromQuery] int? userId = null,
         [FromQuery] int? postId = null)
     {
@@ -100,25 +141,6 @@ public class CommentsController : ControllerBase
                 comments = comments.Where(c => c.PostId == postId.Value);
 
             return Ok(comments.ToList());
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            return StatusCode(500, e.Message);
-        }
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteComment(int id)
-    {
-        try
-        {
-            await commentRepo.DeleteAsync(id);
-            return NoContent();
-        }
-        catch (InvalidOperationException)
-        {
-            return NotFound();
         }
         catch (Exception e)
         {

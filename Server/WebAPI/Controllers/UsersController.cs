@@ -17,7 +17,7 @@ public class UsersController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<ActionResult<UserDto>> AddUser([FromBody] CreateUserDto request)
+    public async Task<ActionResult<UserDto>> AddAsync([FromBody] CreateUserDto request)
     {
         try
         {
@@ -34,7 +34,7 @@ public class UsersController : ControllerBase
                 Id = created.Id,
                 UserName = created.UserName
             };
-            return Created($"/Users/{dto.Id}", created);
+            return Created($"/Users/{dto.Id}", dto);
         }
         catch (Exception e)
         {
@@ -44,18 +44,18 @@ public class UsersController : ControllerBase
     }
     
     [HttpPut("{id}")]
-    public async Task<ActionResult<UserDto>> UpdateUser(int id, [FromBody] CreateUserDto request)
+    public async Task<ActionResult<UserDto>> UpdateAsync([FromBody] UpdateUserDto request)
     {
         try
         {
             User user = new()
             {
-                Id = id,
+                Id = request.Id,
                 UserName = request.UserName,
                 Password = request.Password
             };
             await userRepo.UpdateAsync(user);
-            User updated = await userRepo.GetSingleAsync(id);
+            User updated = await userRepo.GetSingleAsync(request.Id);
             UserDto dto = new()
             {
                 Id = updated.Id,
@@ -73,9 +73,28 @@ public class UsersController : ControllerBase
             return StatusCode(500, e.Message);
         }
     }
+    
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteAsync(int id)
+    {
+        try
+        {
+            await userRepo.DeleteAsync(id);
+            return NoContent();
+        }
+        catch (InvalidOperationException)
+        {
+            return NotFound();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return StatusCode(500, e.Message);
+        }
+    }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<UserDto>> GetUser(int id)
+    public async Task<ActionResult<UserDto>> GetSingleAsync(int id)
     {
         try
         {
@@ -101,7 +120,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<UserDto>> GetUsers([FromQuery] string userName = null)
+    public ActionResult<IEnumerable<UserDto>> GetMany([FromQuery] string userName = null)
     {
         try
         {
@@ -116,25 +135,6 @@ public class UsersController : ControllerBase
                 UserName = u.UserName
             });
             return Ok(dtos);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            return StatusCode(500, e.Message);
-        }
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteUser(int id)
-    {
-        try
-        {
-            await userRepo.DeleteAsync(id);
-            return NoContent();
-        }
-        catch (InvalidOperationException)
-        {
-            return NotFound();
         }
         catch (Exception e)
         {

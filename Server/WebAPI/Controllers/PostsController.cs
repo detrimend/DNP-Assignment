@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ApiContracts;
+using Microsoft.AspNetCore.Mvc;
 using RepositoryContracts;
 using Entities;
 
@@ -16,7 +17,7 @@ public class PostsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Post>> AddPost([FromBody] Post request)
+    public async Task<ActionResult<PostDto>> AddAsync([FromBody] CreatePostDto request)
     {
         try
         {
@@ -27,7 +28,14 @@ public class PostsController : ControllerBase
                 UserId = request.UserId
             };
             Post created = await postRepo.AddAsync(post);
-            return Created($"/Posts/{created.Id}", created);
+            PostDto dto = new()
+            {
+                Id = created.Id,
+                Title = created.Title,
+                Body = created.Body,
+                UserId = created.UserId
+            };
+            return Created($"/Posts/{dto.Id}", dto);
         }
         catch (Exception e)
         {
@@ -37,20 +45,46 @@ public class PostsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<Post>> UpdatePost(int id, [FromBody] Post request)
+    public async Task<ActionResult<PostDto>> UpdateAsync([FromBody] PostDto request)
     {
         try
         {
             Post post = new()
             {
-                Id = id,
+                Id = request.Id,
                 Title = request.Title,
                 Body = request.Body,
                 UserId = request.UserId
             };
             await postRepo.UpdateAsync(post);
-            Post updated = await postRepo.GetSingleAsync(id);
-            return Ok(updated);
+            Post updated = await postRepo.GetSingleAsync(request.Id);
+            PostDto dto = new()
+            {
+                Id = updated.Id,
+                Title = updated.Title,
+                Body = updated.Body,
+                UserId = updated.UserId
+            };
+            return Ok(dto);
+        }
+        catch (InvalidOperationException)
+        {
+            return NotFound();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return StatusCode(500, e.Message);
+        }
+    }
+    
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteAsync(int id)
+    {
+        try
+        {
+            await postRepo.DeleteAsync(id);
+            return NoContent();
         }
         catch (InvalidOperationException)
         {
@@ -64,14 +98,23 @@ public class PostsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Post>> GetPost(int id, [FromQuery] bool includeComments = true)
+    public async Task<ActionResult<PostDto>> GetSingleAsync(int id, [FromQuery] bool includeComments = true)
     {
         try
         {
             Post post = await postRepo.GetSingleAsync(id);
             if (post == null)
                 return NotFound();
-            return Ok(post);
+            PostDto dto = new()
+            {
+                Id = post.Id,
+                Title = post.Title,
+                Body = post.Body,
+                UserId = post.UserId
+            };
+            // Mangler kommentarer... Mangler at parse dem fra repository, ved 
+            // ikke om der findes en bedre løsning
+            return Ok(dto);
         }
         catch (InvalidOperationException)
         {
@@ -85,7 +128,7 @@ public class PostsController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<Post>> GetPosts(
+    public ActionResult<IEnumerable<PostDto>> GetMany(
         [FromQuery] string titleContains = null,
         [FromQuery] int? userId = null)
     {
@@ -100,25 +143,6 @@ public class PostsController : ControllerBase
                 posts = posts.Where(p => p.UserId == userId.Value);
 
             return Ok(posts.ToList());
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            return StatusCode(500, e.Message);
-        }
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeletePost(int id)
-    {
-        try
-        {
-            await postRepo.DeleteAsync(id);
-            return NoContent();
-        }
-        catch (InvalidOperationException)
-        {
-            return NotFound();
         }
         catch (Exception e)
         {
