@@ -10,11 +10,14 @@ namespace WebAPI.Controllers;
 public class PostsController : ControllerBase
 {
     private readonly IPostRepository postRepo;
+    private readonly ICommentRepository commentRepo;
 
-    public PostsController(IPostRepository postRepo)
+    public PostsController(IPostRepository postRepo, ICommentRepository commentRepo)
     {
         this.postRepo = postRepo;
+        this.commentRepo = commentRepo;
     }
+
 
     [HttpPost]
     public async Task<ActionResult<PostDto>> AddAsync([FromBody] CreatePostDto request)
@@ -98,23 +101,48 @@ public class PostsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<PostDto>> GetSingleAsync(int id, [FromQuery] bool includeComments = true)
+    public async Task<ActionResult<object>> GetSingleAsync(int id, [FromQuery] bool includeComments = true)
     {
         try
         {
             Post post = await postRepo.GetSingleAsync(id);
             if (post == null)
-                return NotFound();
-            PostDto dto = new()
             {
-                Id = post.Id,
-                Title = post.Title,
-                Body = post.Body,
-                UserId = post.UserId
-            };
-            // Mangler kommentarer... Mangler at parse dem fra repository, ved 
-            // ikke om der findes en bedre løsning
-            return Ok(dto);
+                return NotFound();
+            }
+
+            if (includeComments)
+            {
+                var comments = commentRepo.GetMany().Where(c => c.PostId == id)
+                    .Select(c => new CommentDto
+                    {
+                        Id = c.Id,
+                        Body = c.Body,
+                        PostId = c.PostId,
+                        UserId = c.UserId
+                    }).ToList();
+
+                var dto = new PostWithCommentsDto
+                {
+                    Id = post.Id,
+                    Title = post.Title,
+                    Body = post.Body,
+                    UserId = post.UserId,
+                    Comments = comments
+                };
+                return Ok(dto);
+            }
+            else
+            {
+                var dto = new PostDto
+                {
+                    Id = post.Id,
+                    Title = post.Title,
+                    Body = post.Body,
+                    UserId = post.UserId
+                };
+                return Ok(dto);
+            }
         }
         catch (InvalidOperationException)
         {
@@ -127,6 +155,7 @@ public class PostsController : ControllerBase
         }
     }
 
+
     [HttpGet]
     public ActionResult<IEnumerable<PostDto>> GetMany(
         [FromQuery] string titleContains = null,
@@ -137,12 +166,21 @@ public class PostsController : ControllerBase
             var posts = postRepo.GetMany();
 
             if (!string.IsNullOrEmpty(titleContains))
+            {
                 posts = posts.Where(p => p.Title != null && p.Title.Contains(titleContains));
-
+            }
             if (userId.HasValue)
+            {
                 posts = posts.Where(p => p.UserId == userId.Value);
-
-            return Ok(posts.ToList());
+            }
+            var dtos = posts.Select(p => new PostDto
+            {
+                Id = p.Id,
+                Title = p.Title,
+                Body = p.Body,
+                UserId = p.UserId
+            });
+            return Ok(dtos);
         }
         catch (Exception e)
         {

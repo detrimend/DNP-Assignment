@@ -3,32 +3,32 @@ using ApiContracts;
 
 namespace BlazorApp.Services;
 
-public class HttpUserService : IUserService
+public class HttpCommentService : ICommentService
 {
     private readonly HttpClient client;
 
-    public HttpUserService(HttpClient client)
+    public HttpCommentService(HttpClient client)
     {
         this.client = client;
     }
 
-    public async Task<UserDto> AddAsync(CreateUserDto request)
+    public async Task<CommentDto> AddAsync(CreateCommentDto request)
     {
-        HttpResponseMessage httpResponse = await client.PostAsJsonAsync("users", request);
+        HttpResponseMessage httpResponse = await client.PostAsJsonAsync("comments", request);
         string response = await httpResponse.Content.ReadAsStringAsync();
         if (!httpResponse.IsSuccessStatusCode)
         {
             throw new Exception(response);
         }
-        return JsonSerializer.Deserialize<UserDto>(response, new JsonSerializerOptions
+        return JsonSerializer.Deserialize<CommentDto>(response, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         })!;
     }
 
-    public async Task UpdateAsync(int id, UpdateUserDto request)
+    public async Task UpdateAsync(CommentDto request)
     {
-        HttpResponseMessage httpResponse = await client.PutAsJsonAsync($"users/{id}", request);
+        HttpResponseMessage httpResponse = await client.PutAsJsonAsync($"comments/{request.Id}", request);
         string response = await httpResponse.Content.ReadAsStringAsync();
         if (!httpResponse.IsSuccessStatusCode)
         {
@@ -38,7 +38,7 @@ public class HttpUserService : IUserService
 
     public async Task DeleteAsync(int id)
     {
-        HttpResponseMessage httpResponse = await client.DeleteAsync($"users/{id}");
+        HttpResponseMessage httpResponse = await client.DeleteAsync($"comments/{id}");
         if (!httpResponse.IsSuccessStatusCode)
         {
             string response = await httpResponse.Content.ReadAsStringAsync();
@@ -46,32 +46,32 @@ public class HttpUserService : IUserService
         }
     }
 
-    public async Task<UserDto> GetSingleAsync(int id)
+    public async Task<CommentDto> GetSingleAsync(int id)
     {
-        HttpResponseMessage httpResponse = await client.GetAsync($"users/{id}");
+        HttpResponseMessage httpResponse = await client.GetAsync($"comments/{id}");
         string response = await httpResponse.Content.ReadAsStringAsync();
         if (!httpResponse.IsSuccessStatusCode)
         {
             throw new Exception(response);
         }
-        return JsonSerializer.Deserialize<UserDto>(response, new JsonSerializerOptions
+        return JsonSerializer.Deserialize<CommentDto>(response, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         })!;
     }
 
-    public IQueryable<UserDto> GetMany()
+    public IQueryable<CommentDto> GetMany()
     {
-        HttpResponseMessage httpResponse = client.GetAsync("users").Result;
+        HttpResponseMessage httpResponse = client.GetAsync("comments").Result;
         string response = httpResponse.Content.ReadAsStringAsync().Result;
         if (!httpResponse.IsSuccessStatusCode)
         {
             throw new Exception(response);
         }
-        var users = JsonSerializer.Deserialize<List<UserDto>>(response, new JsonSerializerOptions
+        var comments = JsonSerializer.Deserialize<List<CommentDto>>(response, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         })!;
-        return users.AsQueryable();
+        return comments.AsQueryable();
     }
 }

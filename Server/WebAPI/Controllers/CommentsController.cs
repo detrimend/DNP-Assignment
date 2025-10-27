@@ -104,7 +104,9 @@ public class CommentsController : ControllerBase
         {
             Comment comment = await commentRepo.GetSingleAsync(id);
             if (comment == null)
+            {
                 return NotFound();
+            }
             CommentDto dto = new()
             {
                 Id = comment.Id,
@@ -133,14 +135,22 @@ public class CommentsController : ControllerBase
         try
         {
             var comments = commentRepo.GetMany();
-
             if (userId.HasValue)
+            {
                 comments = comments.Where(c => c.UserId == userId.Value);
-
+            }
             if (postId.HasValue)
+            {
                 comments = comments.Where(c => c.PostId == postId.Value);
-
-            return Ok(comments.ToList());
+            }
+            var dtos = comments.Select(c => new CommentDto
+            {
+                Id = c.Id,
+                Body = c.Body,
+                PostId = c.PostId,
+                UserId = c.UserId
+            });
+            return Ok(dtos);
         }
         catch (Exception e)
         {
