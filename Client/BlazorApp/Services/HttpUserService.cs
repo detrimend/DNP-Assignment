@@ -12,7 +12,7 @@ public class HttpUserService : IUserService
         this.client = client;
     }
 
-    public async Task<UserDto> AddAsync(CreateUserDto request)
+    public async Task<UserDto> AddAsync(LoginDto request)
     {
         HttpResponseMessage httpResponse = await client.PostAsJsonAsync("users", request);
         string response = await httpResponse.Content.ReadAsStringAsync();

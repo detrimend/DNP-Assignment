@@ -17,7 +17,7 @@ public class UsersController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<ActionResult<UserDto>> AddAsync([FromBody] CreateUserDto request)
+    public async Task<ActionResult<UserDto>> AddAsync([FromBody] LoginDto request)
     {
         try
         {
